@@ -137,8 +137,8 @@ extension ViewController {
                                  fileName: "image.jpg",
                                  mimeType: "image/jpeg")
     },
-      to: "http://api.imagga.com/v1/content",
-      headers: ["Authorization": "Basic xxx"],
+      to: "https://api.imagga.com/v1/content",
+      headers: ["Authorization":"Basic YWNjX2UzYzRhODVmY2I1NTQwMDplMjBlODM1NGI2OTMwZjBjYjRiNjI3MTk4NzYyZDM1YQ=="],
       encodingCompletion: { encodingResult in
         switch encodingResult {
         case .success(let upload, _, _):
@@ -149,36 +149,30 @@ extension ViewController {
           upload.responseJSON { response in
         //1 
             guard response.result.isSuccess else {
-              print( "Error while uploading file: \(response.result.error)")
-              completion([String](),[PhotoColor]())
+print("Error while uploading file: \(String(describing: response.result.error))")
+              completion([String](), [PhotoColor]())
               return
             }
             
-        //2 
+            // 2.
             guard let responseJSON = response.result.value as? [String: Any],
-            let uploadedFile = responseJSON["uploaded"] as? [[String:Any]],
-            let firstFile = uploadedFile.first,
+              let uploadedFiles = responseJSON["uploaded"] as? [[String: Any]],
+              let firstFile = uploadedFiles.first,
               let firstFileID = firstFile["id"] as? String else {
                 print("Invalid information received from service")
-                completion([String](),[PhotoColor]())
+                completion([String](), [PhotoColor]())
                 return
             }
             
             print("Content uploaded with ID: \(firstFileID)")
             
-            //3. 
-            completion([String](), [PhotoColor]())
-          }
+            // 3.
+            completion([String](), [PhotoColor]())          }
         case .failure(let encodingError):
           print(encodingError)
         }
         
-        Alamofire.request("https://httpbin.org/get", parameters: ["foo": "bar"])
-          .validate(statusCode: 200..<300)
-          .validate(contentType: ["application/json"])
-          .response { response in
-            // response handling code
-        }//        This chunk of code(lines 140 to 153) calls the Alamofire upload function and passes in a small calculation to update the progress bar as the file uploads. It then validates the response has a status code in the default acceptable range (between 200 and 299).
+        //        This chunk of code(lines 140 to 153) calls the Alamofire upload function and passes in a small calculation to update the progress bar as the file uploads. It then validates the response has a status code in the default acceptable range (between 200 and 299).
     }
     )
   }

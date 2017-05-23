@@ -109,7 +109,7 @@ upload(
       
       //4
       self.performSegue(withIdentifier: "ShowResults", sender: self)
-    })
+          })
     dismiss(animated: true)
   }
 }
@@ -121,9 +121,65 @@ extension ViewController: UINavigationControllerDelegate {
 
 extension ViewController {
   func upload(image: UIImage, progressCompletion: @escaping (_ _percent: Float)-> Void, completion: @escaping(_ tags:[String], _ colours:[PhotoColor]) -> Void) {
-    guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
+        
+
+    guard let imageData = UIImageJPEGRepresentation(image, 0.5)
+      else {
+      
       print ("Could not get JPEG representation of UIImage")
       return
     }
+    
+    Alamofire.upload(
+      multipartFormData: { multipartFormData in
+        multipartFormData.append(imageData,
+                                 withName: "imagefile",
+                                 fileName: "image.jpg",
+                                 mimeType: "image/jpeg")
+    },
+      to: "http://api.imagga.com/v1/content",
+      headers: ["Authorization": "Basic xxx"],
+      encodingCompletion: { encodingResult in
+        switch encodingResult {
+        case .success(let upload, _, _):
+          upload.uploadProgress { progress in
+            progressCompletion(Float(progress.fractionCompleted))
+          }
+          upload.validate()
+          upload.responseJSON { response in
+        //1 
+            guard response.result.isSuccess else {
+              print( "Error while uploading file: \(response.result.error)")
+              completion([String](),[PhotoColor]())
+              return
+            }
+            
+        //2 
+            guard let responseJSON = response.result.value as? [String: Any],
+            let uploadedFile = responseJSON["uploaded"] as? [[String:Any]],
+            let firstFile = uploadedFile.first,
+              let firstFileID = firstFile["id"] as? String else {
+                print("Invalid information received from service")
+                completion([String](),[PhotoColor]())
+                return
+            }
+            
+            print("Content uploaded with ID: \(firstFileID)")
+            
+            //3. 
+            completion([String](), [PhotoColor]())
+          }
+        case .failure(let encodingError):
+          print(encodingError)
+        }
+        
+        Alamofire.request("https://httpbin.org/get", parameters: ["foo": "bar"])
+          .validate(statusCode: 200..<300)
+          .validate(contentType: ["application/json"])
+          .response { response in
+            // response handling code
+        }//        This chunk of code(lines 140 to 153) calls the Alamofire upload function and passes in a small calculation to update the progress bar as the file uploads. It then validates the response has a status code in the default acceptable range (between 200 and 299).
+    }
+    )
   }
 }

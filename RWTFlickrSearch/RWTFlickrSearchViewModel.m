@@ -10,4 +10,17 @@
 
 @implementation RWTFlickrSearchViewModel
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self initialize];
+    }
+    return self;
+}
+
+-(void)initialize {
+    self.searchText = @"search text";
+    self.title = @"Flickr Search";
+}
+
 @end

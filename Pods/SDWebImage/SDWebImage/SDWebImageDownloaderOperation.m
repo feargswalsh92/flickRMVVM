@@ -24,6 +24,7 @@
 @property (strong, nonatomic) NSURLConnection *connection;
 @property (strong, atomic) NSThread *thread;
 
+
 #if TARGET_OS_IPHONE && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property (assign, nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 #endif
@@ -35,16 +36,18 @@
     UIImageOrientation orientation;
     BOOL responseFromCached;
 }
-
+@synthesize executing = _executing;
+@synthesize finished = _finished;
 - (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSInteger, NSInteger))progressBlock completed:(void (^)(UIImage *, NSData *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock {
     if ((self = [super init])) {
+       
         _request = request;
         _options = options;
         _progressBlock = [progressBlock copy];
         _completedBlock = [completedBlock copy];
         _cancelBlock = [cancelBlock copy];
-////        _executing = NO;
-//        _finished = NO;
+        _executing = NO;
+        _finished = NO;
         _expectedSize = 0;
         responseFromCached = YES; // Initially wrong until `connection:willCacheResponse:` is called or not called
     }

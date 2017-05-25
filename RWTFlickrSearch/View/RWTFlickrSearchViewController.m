@@ -28,7 +28,7 @@
     }
 - (void)bindViewModel {
     self.title = self.viewModel.title;
-    self.searchTextField.text = self.viewModel.searchText;
+    RAC(self.viewModel, searchText) = self.searchTextField.rac_textSignal;
 }
 
 -(instancetype)initWithViewModel:(RWTFlickrSearchViewModel *)viewModel {
